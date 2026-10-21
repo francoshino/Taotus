@@ -62,6 +62,29 @@
     unsure: "Help me choose",
   };
 
+  // --- Theme ---------------------------------------------------------------
+  const root = document.documentElement;
+  const themeToggle = $("#theme-toggle");
+  const themeMeta = $('meta[name="theme-color"]');
+  const darkQuery = matchMedia("(prefers-color-scheme: dark)");
+
+  const isDark = () => (root.dataset.theme ? root.dataset.theme === "dark" : darkQuery.matches);
+
+  function syncTheme() {
+    const dark = isDark();
+    themeToggle.setAttribute("aria-label", dark ? "Switch to light mode" : "Switch to dark mode");
+    themeMeta.content = dark ? "#0f1f1a" : "#173e35";
+    // The icon CSS keys off data-theme, so pin it when following the OS.
+    if (!root.dataset.theme) root.dataset.theme = dark ? "dark" : "light";
+  }
+
+  themeToggle.addEventListener("click", () => {
+    root.dataset.theme = isDark() ? "light" : "dark";
+    try { localStorage.setItem("theme", root.dataset.theme); } catch {}
+    syncTheme();
+  });
+  syncTheme();
+
   // --- Mobile menu ---------------------------------------------------------
   const menuButton = $(".menu-button");
   const mobileNav = $("#mobile-menu");
