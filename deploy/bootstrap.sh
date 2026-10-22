@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Taotus VPS bootstrap — Ubuntu 24.04, run once as root. Safe to re-run.
 #
-#   curl -fsSL https://raw.githubusercontent.com/<owner>/taotus/main/deploy/bootstrap.sh -o /tmp/b.sh && bash /tmp/b.sh
+#   curl -fsSL https://raw.githubusercontent.com/francoshino/Taotus/main/deploy/bootstrap.sh -o /tmp/b.sh && bash /tmp/b.sh
 #
 # What it does: swap, admin user + SSH key, SSH hardening, firewall, fail2ban,
 # auto security updates, nginx serving the site from git, Let's Encrypt TLS.
@@ -10,7 +10,7 @@
 set -euo pipefail
 
 DOMAIN="${DOMAIN:-taotus.com}"
-REPO_URL="${REPO_URL:-https://github.com/CHANGE_ME/taotus.git}"
+REPO_URL="${REPO_URL:-https://github.com/francoshino/Taotus.git}"
 BRANCH="${BRANCH:-main}"
 ADMIN_USER="${ADMIN_USER:-deploy}"
 LE_EMAIL="${LE_EMAIL:-}"
