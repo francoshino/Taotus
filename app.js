@@ -201,11 +201,50 @@
     ].join("\n");
   }
 
+  const sendButton = $("#send-rfq");
+  const sendButtonLabel = sendButton.innerHTML;
+  const sendStatus = $("#send-status");
+  const sendStatusText = $("#send-status-text");
+  let pendingBrief = null;
+
+  function setSendStatus(state, text) {
+    sendStatus.dataset.state = state;
+    sendStatusText.textContent = text;
+  }
+
   form.addEventListener("submit", (e) => {
     e.preventDefault();
-    rfqOutput.textContent = buildBrief(new FormData(form));
+    const data = new FormData(form);
+    pendingBrief = Object.fromEntries(data);
+    rfqOutput.textContent = buildBrief(data);
     copyStatus.textContent = "";
+    sendButton.disabled = false;
+    sendButton.innerHTML = sendButtonLabel;
+    setSendStatus("draft", "Draft only — this RFQ has not been sent to Taotus.");
     rfqDialog.showModal();
+  });
+
+  sendButton.addEventListener("click", async () => {
+    sendButton.disabled = true;
+    setSendStatus("sending", "Sending…");
+    try {
+      const res = await fetch("/api/rfq", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(pendingBrief),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      sendButton.textContent = "Sent";
+      setSendStatus("sent", `Sent. Taotus will reply to ${pendingBrief.email}.`);
+      form.reset();
+      selectTab($('[role="tab"][aria-selected="true"]'));
+    } catch {
+      sendButton.disabled = false;
+      setSendStatus(
+        "error",
+        "We couldn’t send this just now. Copy or download your brief and email it to info@taotus.com."
+      );
+    }
   });
 
   $("#copy-rfq").addEventListener("click", async () => {

@@ -4,9 +4,11 @@
 #   curl -fsSL https://raw.githubusercontent.com/francoshino/Taotus/main/deploy/bootstrap.sh -o /tmp/b.sh && bash /tmp/b.sh
 #
 # What it does: swap, admin user + SSH key, SSH hardening, firewall, fail2ban,
-# auto security updates, nginx serving the site from git, Let's Encrypt TLS.
+# auto security updates, nginx serving the site from git, Let's Encrypt TLS,
+# PocketBase (RFQ submissions + email notification) and nightly DB backups.
 #
-# Overrides (environment): DOMAIN, REPO_URL, BRANCH, ADMIN_USER, LE_EMAIL, PUBKEY
+# Overrides (environment): DOMAIN, REPO_URL, BRANCH, ADMIN_USER, LE_EMAIL, PUBKEY,
+#                          PB_VERSION, RFQ_NOTIFY_TO
 set -euo pipefail
 
 DOMAIN="${DOMAIN:-taotus.com}"
@@ -16,8 +18,14 @@ ADMIN_USER="${ADMIN_USER:-deploy}"
 LE_EMAIL="${LE_EMAIL:-}"
 PUBKEY="${PUBKEY:-ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIN5ZF//DUl48oKzGjXy7E4YCcipO8KrvY4W9EvToIsZJ taotus-deploy}"
 
+PB_VERSION="${PB_VERSION:-0.40.5}"
+RFQ_NOTIFY_TO="${RFQ_NOTIFY_TO:-info@taotus.com}"
+
 SRC_DIR=/opt/taotus
 WEB_ROOT=/var/www/taotus
+PB_DIR=/opt/pocketbase
+PB_DATA=/var/lib/pocketbase
+BACKUP_DIR=/var/backups/taotus
 
 log() { printf '\n\033[1;32m==>\033[0m %s\n' "$*"; }
 warn() { printf '\n\033[1;33m!! %s\033[0m\n' "$*"; }
@@ -44,7 +52,7 @@ fi
 # --- Packages ----------------------------------------------------------------
 log "Installing packages"
 apt-get update -qq
-apt-get install -y -qq nginx ufw fail2ban unattended-upgrades certbot python3-certbot-nginx git rsync curl </dev/null
+apt-get install -y -qq nginx ufw fail2ban unattended-upgrades certbot python3-certbot-nginx git rsync curl sqlite3 unzip </dev/null
 
 # --- Admin user + key --------------------------------------------------------
 log "Setting up user '$ADMIN_USER'"
@@ -100,7 +108,9 @@ cat > /usr/local/bin/taotus-update <<EOF
 #!/usr/bin/env bash
 # Pull the latest site and publish only the public files.
 set -euo pipefail
+OLD=""
 if [ -d "$SRC_DIR/.git" ]; then
+  OLD="\$(git -C "$SRC_DIR" rev-parse HEAD)"
   git -C "$SRC_DIR" fetch --quiet origin "$BRANCH"
   git -C "$SRC_DIR" reset --quiet --hard "origin/$BRANCH"
 else
@@ -110,13 +120,80 @@ install -d "$WEB_ROOT"
 rsync -a --delete \\
   --include='index.html' --include='styles.css' --include='app.js' --include='favicon.svg' \\
   --exclude='*' "$SRC_DIR/" "$WEB_ROOT/"
+NEW="\$(git -C "$SRC_DIR" rev-parse HEAD)"
+# Restart PocketBase only when its hooks or migrations changed.
+if [ -n "\$OLD" ] && [ "\$OLD" != "\$NEW" ] && ! git -C "$SRC_DIR" diff --quiet "\$OLD" "\$NEW" -- pocketbase; then
+  systemctl restart pocketbase 2>/dev/null || true
+fi
 echo "Published \$(git -C "$SRC_DIR" log -1 --format='%h %s')"
 EOF
 chmod +x /usr/local/bin/taotus-update
 /usr/local/bin/taotus-update
 
+# --- PocketBase: RFQ submissions ---------------------------------------------
+log "Setting up PocketBase $PB_VERSION"
+[ "$(uname -m)" = x86_64 ] || die "PocketBase install here assumes x86_64."
+if [ "$("$PB_DIR/pocketbase" --version 2>/dev/null | awk '{print $3}')" != "$PB_VERSION" ]; then
+  tmp="$(mktemp -d)"
+  base="https://github.com/pocketbase/pocketbase/releases/download/v$PB_VERSION"
+  zip="pocketbase_${PB_VERSION}_linux_amd64.zip"
+  curl -fsSL "$base/$zip" -o "$tmp/$zip"
+  curl -fsSL "$base/checksums.txt" -o "$tmp/checksums.txt"
+  (cd "$tmp" && grep " $zip\$" checksums.txt | sha256sum -c -) || die "PocketBase checksum mismatch."
+  install -d "$PB_DIR"
+  unzip -qo "$tmp/$zip" pocketbase -d "$PB_DIR"
+  chmod 755 "$PB_DIR/pocketbase"
+  rm -rf "$tmp"
+fi
+
+id pocketbase >/dev/null 2>&1 || adduser --system --group --no-create-home --home "$PB_DATA" pocketbase
+install -d -m 750 -o pocketbase -g pocketbase "$PB_DATA"
+
+cat > /etc/systemd/system/pocketbase.service <<EOF
+[Unit]
+Description=PocketBase (Taotus RFQ)
+After=network.target
+
+[Service]
+User=pocketbase
+Group=pocketbase
+Environment=RFQ_NOTIFY_TO=$RFQ_NOTIFY_TO
+Environment=GOMEMLIMIT=150MiB
+ExecStart=$PB_DIR/pocketbase serve --http=127.0.0.1:8090 --dir=$PB_DATA --hooksDir=$SRC_DIR/pocketbase/pb_hooks --migrationsDir=$SRC_DIR/pocketbase/pb_migrations
+Restart=on-failure
+RestartSec=3
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+ReadWritePaths=$PB_DATA
+
+[Install]
+WantedBy=multi-user.target
+EOF
+systemctl daemon-reload
+systemctl enable pocketbase >/dev/null 2>&1
+systemctl restart pocketbase
+
+# Nightly SQLite backup, 14 days kept (on this server; copy off-box for real safety).
+install -d -m 700 "$BACKUP_DIR"
+cat > /usr/local/bin/taotus-backup <<EOF
+#!/usr/bin/env bash
+set -euo pipefail
+out="$BACKUP_DIR/data-\$(date +%F).db"
+sqlite3 "$PB_DATA/data.db" ".backup '\$out'"
+gzip -f "\$out"
+find "$BACKUP_DIR" -name 'data-*.db.gz' -mtime +14 -delete
+EOF
+chmod +x /usr/local/bin/taotus-backup
+echo '15 3 * * * root /usr/local/bin/taotus-backup' > /etc/cron.d/taotus-backup
+
 # --- nginx -------------------------------------------------------------------
 log "Configuring nginx for $DOMAIN"
+cat > /etc/nginx/conf.d/taotus-ratelimit.conf <<'EOF'
+limit_req_zone $binary_remote_addr zone=rfq:10m rate=6r/m;
+limit_req_status 429;
+EOF
 rm -f /etc/nginx/sites-enabled/default
 cat > /etc/nginx/sites-available/taotus <<EOF
 server {
@@ -137,6 +214,19 @@ server {
 
     location / {
         try_files \$uri \$uri/ =404;
+    }
+
+    # The only public door to PocketBase: creating an RFQ. Admin UI and the rest
+    # of its API stay on localhost (reach them through an SSH tunnel).
+    location = /api/rfq {
+        limit_except POST { deny all; }
+        limit_req zone=rfq burst=3 nodelay;
+        client_max_body_size 32k;
+        proxy_pass http://127.0.0.1:8090/api/collections/rfq/records;
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto \$scheme;
     }
 
     location ~* \.(css|js|svg)\$ {
@@ -170,5 +260,9 @@ cat <<EOF
 
   Log in:   ssh $ADMIN_USER@${SERVER_IP:-<server-ip>}
   Update:   sudo taotus-update
+  Admin UI: ssh -L 8090:localhost:8090 $ADMIN_USER@${SERVER_IP:-<server-ip>}  then  http://localhost:8090/_/
+  1st time: sudo -u pocketbase $PB_DIR/pocketbase superuser upsert EMAIL PASSWORD --dir $PB_DATA
+            then in the admin UI: Settings > Mail > set the SMTP password for info@taotus.com
+  Backups:  $BACKUP_DIR (nightly, 14 days)
   Root SSH and password login are now disabled.
 EOF

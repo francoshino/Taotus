@@ -331,6 +331,9 @@ dialog::backdrop { background: rgba(23, 62, 53, 0.6); backdrop-filter: blur(3px)
 .dialog-lead { color: var(--muted); margin-top: 12px; }
 .not-sent { display: flex; gap: 10px; align-items: center; margin: 16px 0; padding: 12px 14px; background: var(--surface); border-radius: 10px; font-size: 0.9rem; }
 .not-sent .status-dot { margin-top: 0; }
+.not-sent[data-state="sent"] .status-dot { background: #3f9b6a; }
+.not-sent[data-state="error"] { border: 1px solid var(--clay); }
+.hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
 #rfq-output {
   margin: 0 0 20px; padding: 16px; max-height: 40vh; overflow: auto; white-space: pre-wrap; word-break: break-word;
   background: var(--surface); border: 1px solid var(--line); border-radius: 10px; font: 0.85rem/1.55 ui-monospace, Consolas, monospace;
