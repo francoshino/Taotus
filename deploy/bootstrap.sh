@@ -119,6 +119,7 @@ fi
 install -d "$WEB_ROOT"
 rsync -a --delete \\
   --include='index.html' --include='styles.css' --include='app.js' --include='favicon.svg' \\
+  --include='robots.txt' --include='sitemap.xml' \\
   --exclude='*' "$SRC_DIR/" "$WEB_ROOT/"
 NEW="\$(git -C "$SRC_DIR" rev-parse HEAD)"
 # Restart PocketBase only when its hooks or migrations changed.

@@ -25,4 +25,5 @@ npx serve .
 ## Notes
 
 - The RFQ form builds a draft in the browser only; nothing is sent anywhere yet.
-- `index.html` has `noindex, nofollow` — remove before launch.
+- The site is indexable (`robots.txt` and `sitemap.xml` are published). To hide it again, add `<meta name="robots" content="noindex, nofollow">` to `index.html`.
+- Private notes (`*.docx`) are git-ignored on purpose; never commit passwords.
