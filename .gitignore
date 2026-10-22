@@ -1,2 +1,4 @@
 reference/
-
+# Private notes (contain passwords) - never publish
+*.docx
+~$*
