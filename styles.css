@@ -336,7 +336,9 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .footer-right { display: flex; gap: 20px; align-items: center; flex-wrap: wrap; }
 .footer-right a { text-decoration: none; }
 .wa-link { display: inline-flex; align-items: center; gap: 6px; }
-.wa-icon { width: 1.2em; height: 1.2em; fill: #25d366; flex: none; }
+.wa-icon { width: 0.85em; height: 0.85em; fill: #25d366; flex: none; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .wa-icon { fill: #fff; } }
+:root[data-theme="dark"] .wa-icon { fill: #fff; }
 @media (max-width: 820px) { .footer { grid-template-columns: 1fr; } }
 
 /* Legal pages (terms) */
