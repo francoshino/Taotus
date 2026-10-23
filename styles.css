@@ -315,6 +315,21 @@ button, input, select, textarea { font: inherit; color: inherit; }
 }
 .footer > div:nth-child(2) { display: flex; flex-direction: column; }
 .footer > div:nth-child(2) span { color: var(--muted); }
+/* Partner band: the logo sits on a light card so it stays legible in dark mode. */
+.partner {
+  display: flex; align-items: center; flex-wrap: wrap; gap: 14px 28px;
+  padding-block: 32px; border-top: 1px solid var(--line);
+}
+.partner-label { font: 600 0.72rem/1 var(--sans); letter-spacing: 0.16em; color: var(--clay); }
+.partner-logo {
+  display: inline-flex; align-items: center; padding: 10px 20px;
+  background: #fff; border: 1px solid var(--line); border-radius: 12px;
+  transition: box-shadow 0.2s;
+}
+.partner-logo:hover { box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12); }
+.partner-logo img { display: block; height: 48px; width: auto; }
+.partner p { margin: 0; color: var(--muted); }
+
 .partner-note a, .under-button a { color: var(--brand); text-decoration-color: var(--clay); text-underline-offset: 3px; }
 .partner-note a:hover, .under-button a:hover { color: var(--clay); }
 .footer-right { display: flex; gap: 20px; align-items: center; flex-wrap: wrap; }
