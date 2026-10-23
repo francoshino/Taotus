@@ -327,6 +327,7 @@ button, input, select, textarea { font: inherit; color: inherit; }
   transition: box-shadow 0.2s;
 }
 .partner-logo:hover { box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12); }
+.partner-logo picture { display: flex; }
 .partner-logo img { display: block; height: 48px; width: auto; }
 
 .partner-note a, .under-button a { color: var(--brand); text-decoration-color: var(--clay); text-underline-offset: 3px; }
