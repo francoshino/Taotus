@@ -213,6 +213,8 @@ server {
     add_header X-Content-Type-Options nosniff always;
     add_header X-Frame-Options DENY always;
     add_header Referrer-Policy strict-origin-when-cross-origin always;
+    # Browsers re-check with the server each visit (cheap 304 when unchanged), so edits show up at once.
+    add_header Cache-Control "no-cache" always;
 
     location / {
         try_files \$uri \$uri/ =404;
@@ -232,8 +234,7 @@ server {
     }
 
     location ~* \.(css|js|svg)\$ {
-        expires 1h;
-        add_header Cache-Control "public";
+        add_header Cache-Control "no-cache" always;
         add_header X-Content-Type-Options nosniff always;
     }
 }
