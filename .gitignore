@@ -2,3 +2,8 @@ reference/
 # Private notes (contain passwords) - never publish
 *.docx
 ~$*
+*PRIVATE KEY*
+*.pem
+*.key
+id_ed25519*
+id_rsa*
