@@ -12,16 +12,16 @@
       tag: "THE RIGHT CONNECTION",
       title: "A good introduction.<br>A confident next step.",
       description:
-        "For buyers ready to manage the relationship themselves. We match your requirements with a suitable supplier, then make the introduction.",
+        "For buyers who want to build the supplier relationship themselves. We take time to understand what you need, find a supplier who fits, and introduce you personally.",
       cta: "Prepare a Connect RFQ",
       steps: [
         ["Share your requirements", "Product, specification, quantity, and timing."],
         ["We find the fit", "Supplier matching and an agreed introduction scope."],
-        ["Your introduction", "Supplier details shared once our arrangement is agreed."],
+        ["Your introduction", "We introduce you once the introduction terms are agreed."],
       ],
       note: "You take over the supplier relationship and shipping.",
-      commercial: "A clear arrangement, agreed in writing before we begin.",
-      formNote: "Supplier details are shared once our introduction arrangement is agreed.",
+      commercial: "Introduction terms agreed together, in writing, before we begin.",
+      formNote: "Introduction terms are agreed before supplier details are shared.",
     },
     source: {
       tag: "THE RIGHT SUPPLY",
