@@ -265,6 +265,7 @@ button, input, select, textarea { font: inherit; color: inherit; }
 /* RFQ */
 .rfq-section { display: grid; grid-template-columns: 1fr 1.2fr; gap: clamp(32px, 6vw, 80px); align-items: start; }
 .rfq-intro > p { color: var(--muted); margin-top: 20px; }
+.whatsapp-button { margin-top: 24px; }
 .brief-note, .preview-note { display: flex; gap: 14px; margin-top: 24px; padding: 18px; border: 1px solid var(--line); border-radius: 12px; }
 .brief-note > span { color: var(--clay); font-size: 1.3rem; line-height: 1; }
 .brief-note p, .preview-note p { margin: 0; font-size: 0.9rem; color: var(--muted); }
