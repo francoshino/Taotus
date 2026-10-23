@@ -17,11 +17,11 @@
       steps: [
         ["Share your requirements", "Product, specification, quantity, and timing."],
         ["We find the fit", "Supplier matching and an agreed introduction scope."],
-        ["Your introduction", "Supplier details shared after the agreed fee is paid."],
+        ["Your introduction", "Supplier details shared once our arrangement is agreed."],
       ],
       note: "You take over the supplier relationship and shipping.",
-      commercial: "A defined introduction fee, agreed before we begin.",
-      formNote: "Supplier details are shared after the agreed introduction fee is paid.",
+      commercial: "A clear arrangement, agreed in writing before we begin.",
+      formNote: "Supplier details are shared once our introduction arrangement is agreed.",
     },
     source: {
       tag: "THE RIGHT SUPPLY",
