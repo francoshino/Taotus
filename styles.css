@@ -315,6 +315,8 @@ button, input, select, textarea { font: inherit; color: inherit; }
 }
 .footer > div:nth-child(2) { display: flex; flex-direction: column; }
 .footer > div:nth-child(2) span { color: var(--muted); }
+.pilot-note a, .under-button a { color: var(--brand); text-decoration-color: var(--clay); text-underline-offset: 3px; }
+.pilot-note a:hover, .under-button a:hover { color: var(--clay); }
 .footer-right { display: flex; gap: 20px; align-items: center; flex-wrap: wrap; }
 .footer-right a { text-decoration: none; }
 @media (max-width: 820px) { .footer { grid-template-columns: 1fr; } }
