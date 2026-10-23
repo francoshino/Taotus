@@ -328,7 +328,6 @@ button, input, select, textarea { font: inherit; color: inherit; }
 }
 .partner-logo:hover { box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12); }
 .partner-logo img { display: block; height: 48px; width: auto; }
-.partner p { margin: 0; color: var(--muted); }
 
 .partner-note a, .under-button a { color: var(--brand); text-decoration-color: var(--clay); text-underline-offset: 3px; }
 .partner-note a:hover, .under-button a:hover { color: var(--clay); }
