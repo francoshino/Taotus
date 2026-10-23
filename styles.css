@@ -336,6 +336,15 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .footer-right a { text-decoration: none; }
 @media (max-width: 820px) { .footer { grid-template-columns: 1fr; } }
 
+/* Legal pages (terms) */
+.legal { padding-block: clamp(40px, 7vw, 96px); max-width: 760px; margin-inline: 0; }
+.legal h1 { font-size: clamp(2.4rem, 6vw, 4rem); margin-bottom: 8px; }
+.legal .updated { color: var(--muted); margin-bottom: 40px; }
+.legal h2 { font-size: 1.5rem; margin: 36px 0 8px; }
+.legal p { color: var(--muted); max-width: 40em; }
+.legal-foot { padding-block: 32px; border-top: 1px solid var(--line); color: var(--muted); font-size: 0.9rem; }
+.legal-foot a { color: inherit; }
+
 /* Dialogs */
 dialog {
   width: min(640px, calc(100vw - 32px)); max-height: calc(100vh - 32px); overflow: auto;
