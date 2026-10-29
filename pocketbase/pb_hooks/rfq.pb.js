@@ -27,7 +27,7 @@ onRecordCreateRequest((e) => {
       field("Quantity & unit", "quantity"),
       field("Destination", "destination"),
       field("Target timing", "timing"),
-      field("Indicative budget", "budget"),
+      field("Preferred payment method", "payment"),
       "",
       "Specifications & requirements:",
       String(r.get("specifications")),

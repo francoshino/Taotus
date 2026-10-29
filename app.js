@@ -187,7 +187,7 @@
       line("Quantity & unit", data.get("quantity")),
       line("Destination", data.get("destination")),
       line("Target timing", data.get("timing")),
-      line("Indicative budget", data.get("budget")),
+      line("Preferred payment method", data.get("payment")),
       "",
       "Specifications & requirements:",
       data.get("specifications").trim(),
