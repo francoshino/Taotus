@@ -10,7 +10,7 @@
   const SERVICES = {
     connect: {
       tag: "THE RIGHT CONNECTION",
-      title: "A good introduction.<br>A confident next step.",
+      title: "A supplier<br>introduction.",
       description:
         "For buyers who want to build the supplier relationship themselves. We take time to understand what you need, find a supplier who fits, and introduce you personally.",
       cta: "Prepare a Connect RFQ",
